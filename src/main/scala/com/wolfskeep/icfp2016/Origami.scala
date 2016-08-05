@@ -22,6 +22,8 @@ object Skeleton {
 case class Segment(a: Point, b: Point) {
   require(a != b)
 
+  def flip = Segment(b, a)
+
   def length2 = (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)
 
   def right(that: Segment) = {
