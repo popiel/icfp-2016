@@ -54,4 +54,27 @@ class RatioSpec extends FunSpec with Matchers {
       Polygon(List((0, 0), (1, 0), (1, 1), (0, 1), (1 /| 2, 1 /| 2))) should beCongruentWith (Polygon(List((0, 1), (1, 1), (1, 0), (0, 0), (1 /| 2, 1 /| 2))))
     }
   }
+
+  describe("Problem") {
+    it("should parse correctly") {
+      val text =
+"""1
+4
+0,0
+1,0
+1,1
+0,1
+4
+0,0 1,0
+0,0 0,1
+1,0 1,1
+0,1 1,1"""
+
+      Problem.parse(text) shouldBe
+      Problem(
+        Shape(Seq(Polygon(Seq((0,0),(1,0),(1,1),(0,1))))),
+        Skeleton(Seq(Segment((0,0),(1,0)),Segment((0,0),(0,1)),Segment((1,0),(1,1)),Segment((0,1),(1,1))))
+      )
+    }
+  }
 }

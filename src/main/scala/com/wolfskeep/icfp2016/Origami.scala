@@ -1,18 +1,43 @@
 package com.wolfskeep.icfp2016
 
 import scala.annotation.tailrec
+import scala.io._
 import scala.math._
 
+
 case class Problem(shape: Shape, skeleton: Skeleton)
+object Problem {
+  def parse(text: Iterator[String]): Problem = {
+    Problem(Shape.parse(text), Skeleton.parse(text))
+  }
+  def parse(text: String): Problem = parse(Source.fromString(text).getLines)
+}
 case class Skeleton(segments: Seq[Segment])
+object Skeleton {
+  def parse(text: Iterator[String]) = {
+    val count = text.next.toInt
+    Skeleton((1 to count).map{ _ => Segment.parse(text) }.toSeq)
+  }
+}
 case class Segment(a: Point, b: Point) {
   def length2 = (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)
 }
 object Segment {
   implicit def apply(pair: (Point, Point)): Segment = Segment(pair._1, pair._2)
+  def parse(text: Iterator[String]) = {
+    val s = text.next
+    val points = s.split(" ")
+    Segment(Point.parse(points(0)), Point.parse(points(1)))
+  }
 }
 case class Shape(polygons: Seq[Polygon]) {
   def twiceArea = polygons.map(_.twiceArea).sum
+}
+object Shape {
+  def parse(text: Iterator[String]) = {
+    val count = text.next.toInt
+    Shape((1 to count).map{ _ => Polygon.parse(text) }.toSeq)
+  }
 }
 case class Polygon(points: Seq[Point]) {
   private def triSize(j: Int) = {
@@ -29,9 +54,20 @@ case class Polygon(points: Seq[Point]) {
       (1 until points.length - 1).forall(j => this.triSize(j) == -that.triSize(j)))
   }
 }
+object Polygon {
+  def parse(text: Iterator[String]) = {
+    val count = text.next.toInt
+    Polygon((1 to count).map{ _ => Point.parse(text) }.toSeq)
+  }
+}
 case class Point(x: Ratio, y: Ratio)
 object Point {
   implicit def apply[T <% Ratio](pair: (T, T)): Point = Point(pair._1, pair._2)
+  def parse(text: Iterator[String]): Point = parse(text.next)
+  def parse(text: String): Point = {
+    val nums = text.split(",")
+    Point(Ratio.parse(nums(0)), Ratio.parse(nums(1)))
+  }
 }
 abstract case class Ratio private[Ratio](num: Int, den: Int) {
   require (den != 0)
@@ -55,6 +91,10 @@ object Ratio {
   def apply(num: Int, den: Int): Ratio = {
     val div = gcd(abs(num), abs(den)) * signum(den)
     new Ratio(num / div, den / div){}
+  }
+  def parse(text: String) = {
+    val nums = text.split("/")
+    if (nums.length == 1) Ratio(text.toInt) else Ratio(nums(0).toInt, nums(1).toInt)
   }
 }
 class RatioConstruction(a: Int) {
