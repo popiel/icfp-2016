@@ -1,0 +1,15 @@
+#!/bin/bash
+
+KEY=`cat key`
+
+ID=$1
+
+[ -e data/problems/$ID/solved -o -e data/problems/$ID/solutions/fc/solution.txt ] && exit 0
+mkdir -p data/problems/$ID/solutions/fc
+
+echo `date -Iseconds`": Generating solution fc for problem $ID"
+sbt -no-colors --error "set showSuccess := false" "run-main com.wolfskeep.icfp2016.FlatCentroid" < data/problems/$ID/spec.txt > data/problems/$ID/solutions/fc/solution.txt
+
+if grep '^\[' data/problems/$ID/solutions/fc/solution.txt; then
+  rm data/problems/$ID/solutions/fc/*
+fi
