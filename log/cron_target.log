@@ -1,9 +1,8 @@
-2016-08-05T14:52:11-0700: Generating solution fc for problem 101
-[error] (run-main-0) java.lang.NumberFormatException: For input string: "233234463365"
-[trace] Stack trace suppressed: run 'last compile:runMain' for the full output.
-[trace] Stack trace suppressed: run 'last compile:runMain' for the full output.
-[error] (compile:runMain) Nonzero exit code: 1
-2016-08-05T14:52:23-0700: Problem 1 SOLVED with fc
-jq: data/problems/101/solutions/fc/result.json: No such file or directory
-2016-08-05T14:52:23-0700: Problem 2 SOLVED with fc
-2016-08-05T14:52:23-0700: Problem 3 SOLVED with fc
+2016-08-05T15:50:02-0700: Generating solution fc for problem 101
+2016-08-05T15:50:14-0700: Problem 1 SOLVED with fc
+2016-08-05T15:50:14-0700: Submitting problem 101 solution fc
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   899    0   130  100   769    310   1835 --:--:-- --:--:-- --:--:--  1839
+2016-08-05T15:50:15-0700: Problem 2 SOLVED with fc
+2016-08-05T15:50:15-0700: Problem 3 SOLVED with fc

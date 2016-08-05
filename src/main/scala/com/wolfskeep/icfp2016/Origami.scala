@@ -100,7 +100,7 @@ object Point {
     Point(Ratio.parse(nums(0)), Ratio.parse(nums(1)))
   }
 }
-abstract case class Ratio private[Ratio](num: Int, den: Int) {
+abstract case class Ratio private[Ratio](num: BigInt, den: BigInt) {
   require (den != 0)
 
   def + (that: Ratio) = Ratio(this.num * that.den + that.num * this.den, this.den * that.den)
@@ -111,25 +111,24 @@ abstract case class Ratio private[Ratio](num: Int, den: Int) {
   def unary_+ = this
   def unary_- = Ratio(-num, den)
 
-  def copy(num: Int = num, den: Int = den): Ratio = Ratio.apply(num, den)
+  def copy(num: BigInt = num, den: BigInt = den): Ratio = Ratio.apply(num, den)
 
   override def toString() = if (den == 1) num.toString else s"$num/$den"
 }
 object Ratio {
-  @tailrec def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
-
   implicit def apply(a: Int): Ratio = Ratio(a, 1)
-  def apply(num: Int, den: Int): Ratio = {
-    val div = gcd(abs(num), abs(den)) * signum(den)
+  implicit def apply(a: BigInt): Ratio = Ratio(a, 1)
+  def apply(num: BigInt, den: BigInt): Ratio = {
+    val div = num.gcd(den) * den.signum
     new Ratio(num / div, den / div){}
   }
   def parse(text: String) = {
     val nums = text.split("/")
-    if (nums.length == 1) Ratio(text.toInt) else Ratio(nums(0).toInt, nums(1).toInt)
+    if (nums.length == 1) Ratio(BigInt(text)) else Ratio(BigInt(nums(0)), BigInt(nums(1)))
   }
 }
 class RatioConstruction(a: Int) {
-  def /| (b: Int) = com.wolfskeep.icfp2016.Ratio(a, b)
+  def /| (b: Int) = Ratio(a, b)
 }
 object RatioConstruction {
   implicit def apply(a: Int) = new RatioConstruction(a)
