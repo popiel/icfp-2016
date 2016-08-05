@@ -12,5 +12,5 @@ mkdir -p log
     for p in `ls data/problems`; do ./make_fc $p; done
 
     ./submit_solutions
-  ) 2>&1 | tee log/cron_target.log
+  ) 2>&1 | tee -a log/cron_target.log
 ) 9>log/cron_target.log
