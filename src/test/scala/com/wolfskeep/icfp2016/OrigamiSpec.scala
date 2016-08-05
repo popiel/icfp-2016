@@ -31,6 +31,23 @@ class RatioSpec extends FunSpec with Matchers {
     }
   }
 
+  describe("Segment") {
+    describe("reflection") {
+      it("should reflect across a vertical line correctly") {
+        Segment((0,0),(0,1)).reflect((1, 1)) shouldBe Point(-1, 1)
+        Segment((2,0),(2,1)).reflect((1, 1)) shouldBe Point(3, 1)
+      }
+      it("should reflect across a horizontal line correctly") {
+        Segment((0,0),(1,0)).reflect((1, 1)) shouldBe Point(1, -1)
+        Segment((0,2),(1,2)).reflect((1, 1)) shouldBe Point(1, 3)
+      }
+      it("should reflect across an angled line correctly") {
+        Segment((0,1),(1,2)).reflect((1, 0)) shouldBe Point(-1, 2)
+        Segment((0,1),(1,3)).reflect((1, 1)) shouldBe Point(-3/|5, 9/|5)
+      }
+    }
+  }
+
   describe("Polygon") {
     it("should compute a square's area correctly") {
       Polygon(List((0, 0), (1, 0), (1, 1), (0, 1))).twiceArea shouldBe 2 /| 1
@@ -58,6 +75,11 @@ class RatioSpec extends FunSpec with Matchers {
 
       Polygon(List((0, 0), (1, 0), (1, 1), (0, 1), (1 /| 2, 1 /| 2))) should not (beCongruentWith (Polygon(List((1, 1), (0, 1), (1, 0), (0, 0), (1 /| 2, 1 /| 2)))))
     }
+
+    it("should check for right angles correctly") {
+      Polygon(List((0,0), (1,0), (0,1))) shouldBe 'right
+      Polygon(List((0,0), (1,0), (1,1))) should not (be ('right))
+    }
   }
 
   describe("Problem") {
@@ -80,6 +102,41 @@ class RatioSpec extends FunSpec with Matchers {
         Shape(Seq(Polygon(Seq((0,0),(1,0),(1,1),(0,1))))),
         Skeleton(Seq(Segment((0,0),(1,0)),Segment((0,0),(0,1)),Segment((1,0),(1,1)),Segment((0,1),(1,1))))
       )
+    }
+  }
+
+  describe("Solution") {
+    it("should render correctly") {
+      Solution(
+        List((0,0),(1,0),(1,1),(0,1),(0/|1,1/|2),(1/|2,1/|2),(1/|2,1/|1)),
+        List(
+          Polygon(List((0,0),(1,0),(1/|2,1/|2),(0/|1,1/|2))),
+          Polygon(List((1,0),(1,1),(1/|2,1/|1),(1/|2,1/|2))),
+          Polygon(List((0/|1,1/|2),(1/|2,1/|2),(0,1))),
+          Polygon(List((1/|2,1/|2),(1/|2,1/|1),(0,1)))
+        ),
+        List((0,0),(1,0),(0,0),(0,0),(0/|1,1/|2),(1/|2,1/|2),(0/|1,1/|2))
+      ).render shouldBe
+"""7
+0,0
+1,0
+1,1
+0,1
+0,1/2
+1/2,1/2
+1/2,1
+4
+4 0 1 5 4
+4 1 2 6 5
+3 4 5 3
+3 5 6 3
+0,0
+1,0
+0,0
+0,0
+0,1/2
+1/2,1/2
+0,1/2"""
     }
   }
 }

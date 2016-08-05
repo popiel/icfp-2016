@@ -20,7 +20,29 @@ object Skeleton {
   }
 }
 case class Segment(a: Point, b: Point) {
+  require(a != b)
+
   def length2 = (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)
+
+  def right(that: Segment) = {
+    this.a == that.a && {
+      val twiceArea = Polygon(List(this.a, this.b, that.b)).twiceArea
+      this.length2 * that.length2 == twiceArea * twiceArea
+    }
+  }
+
+  def reflect(p: Point): Point = {
+    if (a.x == b.x)
+      Point(a.x * 2 - p.x, p.y)
+    else if (a.y == b.y)
+      Point(p.x, a.y * 2 - p.y)
+    else {
+      val m = (b.y - a.y) / (b.x - a.x)
+      val c = b.y - b.x * m
+      val d = (p.x + (p.y - c)*m) / (m * m + 1)
+      Point(d * 2 - p.x, d * m * 2 - p.y + c * 2)
+    }
+  }
 }
 object Segment {
   implicit def apply(pair: (Point, Point)): Segment = Segment(pair._1, pair._2)
@@ -45,13 +67,18 @@ case class Polygon(points: Seq[Point]) {
     (v1.x - v0.x) * (v2.y - v0.y) - (v2.x - v0.x) * (v1.y - v0.y)
   }
 
-  def twiceArea = (1 until points.length - 1).map(triSize).sum
+  def twiceArea = if (points.length == 3) triSize(1) else (1 until points.length - 1).map(triSize).sum
 
   def congruent(that: Polygon): Boolean = {
     this.points.length == that.points.length &&
     Segment(this.points(0) -> this.points(1)).length2 == Segment(that.points(0) -> that.points(1)).length2 &&
     ( (1 until points.length - 1).forall(j => this.triSize(j) == that.triSize(j)) ||
       (1 until points.length - 1).forall(j => this.triSize(j) == -that.triSize(j)))
+  }
+
+  def isRight: Boolean = {
+    points.length == 3 &&
+    Segment(points(0),points(1)).length2 * Segment(points(0), points(2)).length2 == triSize(1) * triSize(1)
   }
 }
 object Polygon {
@@ -60,7 +87,9 @@ object Polygon {
     Polygon((1 to count).map{ _ => Point.parse(text) }.toSeq)
   }
 }
-case class Point(x: Ratio, y: Ratio)
+case class Point(x: Ratio, y: Ratio) {
+  override def toString() = s"$x,$y"
+}
 object Point {
   implicit def apply[T <% Ratio](pair: (T, T)): Point = Point(pair._1, pair._2)
   def parse(text: Iterator[String]): Point = parse(text.next)
@@ -104,3 +133,15 @@ object RatioConstruction {
   implicit def apply(a: Int) = new RatioConstruction(a)
 }
 
+
+case class Solution(positions: Seq[Point], facets: Seq[Polygon], destinations: Seq[Point]) {
+  def render = {
+    List(
+      List(positions.length.toString),
+      positions.map(_.toString),
+      List(facets.length.toString),
+      facets.map { facet => (facet.points.length.toString +: facet.points.map(point => positions.indexOf(point).toString)).mkString(" ") },
+      destinations.map(_.toString)
+    ).flatten.mkString("\n")
+  }
+}
