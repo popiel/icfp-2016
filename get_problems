@@ -1,0 +1,14 @@
+#!/bin/bash
+
+KEY=`cat key`
+
+for problem in `jq -c '.problems[]' data/snapshots/current`; do
+  ID=`echo $problem | jq -r '.problem_id'`
+  HASH=`echo $problem | jq -r '.problem_spec_hash'`
+  mkdir -p data/problems/$ID
+  if [ ! -e data/problems/$ID/spec.txt ]; then
+    echo "Fetching spec for $ID: $HASH"
+    curl --compressed -L -H Expect: -H "X-API-Key: $KEY" "http://2016sv.icfpcontest.org/api/blob/$HASH" > data/problems/$ID/spec.txt
+    sleep 1
+  fi
+done

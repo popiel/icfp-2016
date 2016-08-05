@@ -1,0 +1,27 @@
+#!/bin/bash
+
+KEY=`cat key`
+
+NOW=`date +'%s'`
+LAST=0
+if [ -e data/snapshot_list.json ]; then
+  LAST=`jq '[.snapshots[] | .snapshot_time] | max' data/snapshot_list.json`
+fi
+SINCE_LAST=$((NOW - LAST))
+if [ $SINCE_LAST -gt 3700 ]; then
+  echo "Fetching snapshot list"
+  curl --compressed -L -H Expect: -H "X-API-Key: $KEY" 'http://2016sv.icfpcontest.org/api/snapshot/list' > data/snapshot_list.json
+  sleep 1
+fi
+mkdir -p data/snapshots
+for snapshot in `jq -c '.snapshots[]' data/snapshot_list.json`; do
+  TIME=`echo $snapshot | jq -c '.snapshot_time'`
+  HASH=`echo $snapshot | jq -r '.snapshot_hash'`
+  if [ ! -e data/snapshots/$TIME-$HASH.json ]; then
+    rm -f data/snapshots/$TIME-*
+    echo "Fetching snapshot for $TIME: $HASH"
+    curl --compressed -L -H Expect: -H "X-API-Key: $KEY" "http://2016sv.icfpcontest.org/api/blob/$HASH" > data/snapshots/$TIME-$HASH.json
+    sleep 1
+  fi
+done
+ln -fs `ls data/snapshots | grep -v current | tail -1` data/snapshots/current
