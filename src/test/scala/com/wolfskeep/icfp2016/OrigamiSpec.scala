@@ -48,10 +48,15 @@ class RatioSpec extends FunSpec with Matchers {
       def beCongruentWith(right: Polygon) = Matcher { (left: Polygon) =>
         MatchResult(left congruent right, s"$left was not congruent with $right", s"$left was congruent with $right")
       }
+      def congruentWith(right: Polygon) = BeMatcher { (left: Polygon) =>
+        MatchResult(left congruent right, s" was not congruent with $right", s" was congruent with $right")
+      }
 
       Polygon(List((0, 0), (1, 0), (1, 1), (0, 1), (1 /| 2, 1 /| 2))) should beCongruentWith (Polygon(List((0, 0), (0, 1), (1, 1), (1, 0), (1 /| 2, 1 /| 2))))
       Polygon(List((0, 0), (1, 0), (1, 1), (0, 1), (1 /| 2, 1 /| 2))) should beCongruentWith (Polygon(List((1, 0), (2, 0), (2, 1), (1, 1), (3 /| 2, 1 /| 2))))
       Polygon(List((0, 0), (1, 0), (1, 1), (0, 1), (1 /| 2, 1 /| 2))) should beCongruentWith (Polygon(List((0, 1), (1, 1), (1, 0), (0, 0), (1 /| 2, 1 /| 2))))
+
+      Polygon(List((0, 0), (1, 0), (1, 1), (0, 1), (1 /| 2, 1 /| 2))) should not (beCongruentWith (Polygon(List((1, 1), (0, 1), (1, 0), (0, 0), (1 /| 2, 1 /| 2)))))
     }
   }
 
