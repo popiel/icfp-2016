@@ -1,6 +1,7 @@
 package com.wolfskeep.icfp2016
 
 import org.scalatest._
+import org.scalatest.matchers._
 import com.wolfskeep.icfp2016.RatioConstruction._
 
 class RatioSpec extends FunSpec with Matchers {
@@ -41,6 +42,16 @@ class RatioSpec extends FunSpec with Matchers {
     }
     it("should compute a concave polygon's area correctly") {
       Polygon(List((0, 0), (1, 0), (1, 1), (0, 1), (1 /| 2, 1 /| 2))).twiceArea shouldBe 3 /| 2
+      Polygon(List((0, 0), (1, 0), (1, 1), (1 /| 2, 1 /| 2), (0, 1))).twiceArea shouldBe 3 /| 2
+    }
+    it("should check congruency correctly") {
+      def beCongruentWith(right: Polygon) = Matcher { (left: Polygon) =>
+        MatchResult(left congruent right, s"$left was not congruent with $right", s"$left was congruent with $right")
+      }
+
+      Polygon(List((0, 0), (1, 0), (1, 1), (0, 1), (1 /| 2, 1 /| 2))) should beCongruentWith (Polygon(List((0, 0), (0, 1), (1, 1), (1, 0), (1 /| 2, 1 /| 2))))
+      Polygon(List((0, 0), (1, 0), (1, 1), (0, 1), (1 /| 2, 1 /| 2))) should beCongruentWith (Polygon(List((1, 0), (2, 0), (2, 1), (1, 1), (3 /| 2, 1 /| 2))))
+      Polygon(List((0, 0), (1, 0), (1, 1), (0, 1), (1 /| 2, 1 /| 2))) should beCongruentWith (Polygon(List((0, 1), (1, 1), (1, 0), (0, 0), (1 /| 2, 1 /| 2))))
     }
   }
 }
