@@ -2,7 +2,7 @@ package com.wolfskeep.icfp2016
 
 import scala.io._
 
-object Main {
+object FindCorners {
   def main(args: Array[String]) {
     val problem = Problem.parse(Source.stdin.getLines)
     for {

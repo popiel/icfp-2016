@@ -1,0 +1,11 @@
+#!/bin/sh
+
+mkdir -p log
+(
+  flock -n 9 || exit 1
+
+  get_snapshots
+  get_problems
+
+  submit_solutions
+) 9>log/cron_target.log
