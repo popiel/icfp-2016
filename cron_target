@@ -14,4 +14,4 @@ mkdir -p log
     ./submit_solutions
     ./submit_problems
   ) 2>&1 | tee -a log/cron_target.log
-) 9>log/cron_target.log
+) 9>>log/cron_target.log
