@@ -102,8 +102,10 @@ object Point {
     Point(Ratio.parse(nums(0)), Ratio.parse(nums(1)))
   }
 }
-abstract case class Ratio private[Ratio](num: BigInt, den: BigInt) {
+abstract case class Ratio private[Ratio](num: BigInt, den: BigInt) extends Ordered[Ratio] {
   require (den != 0)
+
+  def compare(that: Ratio) = (this.num * that.den - that.num * this.den).signum
 
   def + (that: Ratio) = Ratio(this.num * that.den + that.num * this.den, this.den * that.den)
   def - (that: Ratio) = Ratio(this.num * that.den - that.num * this.den, this.den * that.den)

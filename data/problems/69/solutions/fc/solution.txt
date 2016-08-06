@@ -1,38 +1,11 @@
-[0m[[31merror[0m] [0m(run-main-0) java.lang.NumberFormatException: For input string: "367686955551455"[0m
-java.lang.NumberFormatException: For input string: "367686955551455"
-	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65)
-	at java.lang.Integer.parseInt(Integer.java:495)
-	at java.lang.Integer.parseInt(Integer.java:527)
-	at scala.collection.immutable.StringLike$class.toInt(StringLike.scala:229)
-	at scala.collection.immutable.StringOps.toInt(StringOps.scala:31)
-	at com.wolfskeep.icfp2016.Ratio$.parse(Origami.scala:128)
-	at com.wolfskeep.icfp2016.Point$.parse(Origami.scala:100)
-	at com.wolfskeep.icfp2016.Point$.parse(Origami.scala:97)
-	at com.wolfskeep.icfp2016.Polygon$$anonfun$parse$3.apply(Origami.scala:89)
-	at com.wolfskeep.icfp2016.Polygon$$anonfun$parse$3.apply(Origami.scala:89)
-	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:244)
-	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:244)
-	at scala.collection.immutable.Range.foreach(Range.scala:141)
-	at scala.collection.TraversableLike$class.map(TraversableLike.scala:244)
-	at scala.collection.AbstractTraversable.map(Traversable.scala:105)
-	at com.wolfskeep.icfp2016.Polygon$.parse(Origami.scala:89)
-	at com.wolfskeep.icfp2016.Shape$$anonfun$parse$2.apply(Origami.scala:63)
-	at com.wolfskeep.icfp2016.Shape$$anonfun$parse$2.apply(Origami.scala:63)
-	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:244)
-	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:244)
-	at scala.collection.immutable.Range.foreach(Range.scala:141)
-	at scala.collection.TraversableLike$class.map(TraversableLike.scala:244)
-	at scala.collection.AbstractTraversable.map(Traversable.scala:105)
-	at com.wolfskeep.icfp2016.Shape$.parse(Origami.scala:63)
-	at com.wolfskeep.icfp2016.Problem$.parse(Origami.scala:11)
-	at com.wolfskeep.icfp2016.FlatCentroid$.main(FlatCentroid.scala:9)
-	at com.wolfskeep.icfp2016.FlatCentroid.main(FlatCentroid.scala)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:606)
-[0m[[31mtrace[0m] [0mStack trace suppressed: run [34mlast compile:runMain[0m for the full output.[0m
-java.lang.RuntimeException: Nonzero exit code: 1
-	at scala.sys.package$.error(package.scala:27)
-[0m[[31mtrace[0m] [0mStack trace suppressed: run [34mlast compile:runMain[0m for the full output.[0m
-[0m[[31merror[0m] [0m(compile:[31mrunMain[0m) Nonzero exit code: 1[0m
+4
+0,0
+0,1
+1,1
+1,0
+1
+4 0 1 2 3
+16552090316546831069352312519103712694697884754263702696718367220839834801247469/35509259977511566355013864630083405132050703118337155017944273230336367490031600,141637102373426542928883977080477449326341845586991414265368353336645390861273/444792400553380789415622521462422611257420080814244112959635990359119425762400
+16552090316546831069352312519103712694697884754263702696718367220839834801247469/35509259977511566355013864630083405132050703118337155017944273230336367490031600,586429502926807332344506498542900060583761926401235527225004343695764816623673/444792400553380789415622521462422611257420080814244112959635990359119425762400
+52061350294058397424366177149187117826748587872600857714662640451176202291279069/35509259977511566355013864630083405132050703118337155017944273230336367490031600,586429502926807332344506498542900060583761926401235527225004343695764816623673/444792400553380789415622521462422611257420080814244112959635990359119425762400
+52061350294058397424366177149187117826748587872600857714662640451176202291279069/35509259977511566355013864630083405132050703118337155017944273230336367490031600,141637102373426542928883977080477449326341845586991414265368353336645390861273/444792400553380789415622521462422611257420080814244112959635990359119425762400
