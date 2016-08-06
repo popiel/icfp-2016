@@ -5,7 +5,7 @@ import scala.io._
 object FindCorners {
   def main(args: Array[String]) {
     val problem = Problem.parse(Source.stdin.getLines)
-    new Solver(problem).findPaths()
+    println(new Solver(problem).squaresFromCorners.head.render)
   }
 }
 
@@ -25,6 +25,18 @@ case class Path(segment: Segment, steps: Seq[PathStep]) {
 
 class Solver(problem: Problem) {
   lazy val rightAngles: Seq[(Segment, Segment)] = {
+    for {
+      set <- problem.skeleton.segments.tails
+      if set.length >= 2
+      head = set.head
+      a <- List(head, head.flip)
+      other <- set.tail
+      b <- List(other, other.flip)
+      if a right b
+    } yield (a, b)
+  }.toSeq
+
+  lazy val rightAngles2: Seq[(Segment, Segment)] = {
     for {
       set <- problem.skeleton.segments.tails
       if set.length >= 2
@@ -107,14 +119,11 @@ class Solver(problem: Problem) {
       val b = (y1 + q * r) * -2
       val c = y1 * y1 + q * q - l1
       val det = b * b - a * c * 4
-      println("det = " + det)
       for {
         pos <- det.sqrt.toSeq
         n <- Seq(pos, -pos)
-        _ = println("n = " + n)
         y0 = (n - b) / a / 2
         det2 = (l1 - (y0 - y1) * (y0 - y1))
-        _ = println("det2 = " + det2)
         p <- det2.sqrt.toSeq
         o <- Seq(p, -p)
         x0 = x1 + o
@@ -141,5 +150,22 @@ class Solver(problem: Problem) {
         if Segment(toSegment.b, point).length2 == l2
       } yield point
     }
+  }
+
+  def squaresFromCorners: Seq[Solution] = {
+    for {
+      angle <- rightAngles
+      l1 <- angle._1.length2.sqrt.toSeq
+      l2 <- angle._2.length2.sqrt.toSeq
+      p0 = Point(0, 0)
+      p1 = Point(l1, 0)
+      p2 = Point(0, l2)
+      v0 = angle._1.a
+      s1 <- angle._1.unit.toSeq
+      s2 <- angle._2.unit.toSeq
+      v1 = s1.b
+      v2 = s2.b
+      v3 <- transform(Segment((0,0),(1,0)),(1,1),s1) intersect transform(Segment((0,0),(0,1)),(1,1),s2)
+    } yield Solution(List((0,0),(1,0),(1,1),(0,1)),List(Polygon(List((0,0),(1,0),(1,1),(0,1)))),List(v0,v1,v3,v2))
   }
 }

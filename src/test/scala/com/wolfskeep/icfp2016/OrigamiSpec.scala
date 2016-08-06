@@ -30,6 +30,8 @@ class RatioSpec extends FunSpec with Matchers {
       (-1 /| 1).toString shouldBe "-1"
     }
     it("should provide sqrt when possible") {
+      (0 /| 1).sqrt shouldBe Some(0 /| 1)
+      (1 /| 1).sqrt shouldBe Some(1 /| 1)
       (9 /| 4).sqrt shouldBe Some(3 /| 2)
       Ratio(BigInt(121), BigInt("1524157875323883675019051998750190521")).sqrt shouldBe Some(Ratio(BigInt(11), BigInt("1234567890123456789")))
     }
@@ -55,6 +57,14 @@ class RatioSpec extends FunSpec with Matchers {
       it("should reflect across an angled line correctly") {
         Segment((0,1),(1,2)).reflect((1, 0)) shouldBe Point(-1, 2)
         Segment((0,1),(1,3)).reflect((1, 1)) shouldBe Point(-3/|5, 9/|5)
+      }
+    }
+    describe("unit") {
+      it("should rescale vectors when the result is rational") {
+        Segment((1,0),(1/|1,1/|2)).unit shouldBe Some(Segment((1,0),(1,1)))
+      }
+      it("should not rescale vectors when the result is irrational") {
+        Segment((1,0),(1/|2,1/|2)).unit shouldBe None
       }
     }
   }
@@ -157,9 +167,16 @@ class RatioSpec extends FunSpec with Matchers {
         Shape(Seq(Polygon(Seq((0,0),(1,0),(1,1),(0,1))))),
         Skeleton(Seq(Segment((0,0),(1,0)),Segment((0,0),(0,1)),Segment((1,0),(1,1)),Segment((0,1),(1,1))))
       )
+    val canted = Problem.parse(5)
     it("should be able to transform points from one segment to another") {
       val s = new Solver(simple)
       s.transform(Segment((0,0),(1,0)),Point(2,2),Segment((1,1),(2,1))) should contain theSameElementsAs List(Point(3,3),Point(3,-1))
+    }
+    it("should be able to solve a simple rotation") {
+      val s = new Solver(canted)
+      val answers = s.squaresFromCorners
+      println(answers.toList)
+      atLeast(1, answers.map(_.destinations)) should contain theSameElementsAs canted.shape.polygons(0).points
     }
   }
 }

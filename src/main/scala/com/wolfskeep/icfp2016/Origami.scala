@@ -11,12 +11,27 @@ object Problem {
     Problem(Shape.parse(text), Skeleton.parse(text))
   }
   def parse(text: String): Problem = parse(Source.fromString(text).getLines)
+  def parse(id: Int): Problem = parse(Source.fromFile("data/problems/"+id+"/spec.txt").getLines)
 }
-case class Skeleton(segments: Seq[Segment])
+case class Skeleton(segments: Seq[Segment]) {
+  lazy val all = (segments ++ segments.map(_.flip)).distinct.sortBy(_.length2)
+  lazy val points = all.map(_.a).distinct
+  lazy val connecting: Map[Point,Seq[Segment]] = all.groupBy(_.a)
+  lazy val rightAngles: Seq[(Segment, Segment)] = {
+    for {
+      point <- points
+      set <- connecting(point).tails
+      if set.length >= 2
+      s1 = set.head
+      s2 <- set.tail
+      if s1 right s2
+    } yield (s1, s2)
+  }.toSeq.sortBy(_._1.length2)
+}
 object Skeleton {
   def parse(text: Iterator[String]) = {
     val count = text.next.toInt
-    Skeleton((1 to count).map{ _ => Segment.parse(text) }.toSeq)
+    Skeleton((1 to count).map{ _ => Segment.parse(text) }.toSeq.sortBy(_.length2))
   }
 }
 case class Segment(a: Point, b: Point) {
@@ -47,6 +62,8 @@ case class Segment(a: Point, b: Point) {
   }
 
   def colinear(p: Point) = Polygon(List(a, b, p)).twiceArea.num == 0
+
+  def unit = length2.sqrt.map(l => Segment(a, (b - a) / l + a))
 }
 object Segment {
   implicit def apply(pair: (Point, Point)): Segment = Segment(pair._1, pair._2)
@@ -93,6 +110,11 @@ object Polygon {
 }
 case class Point(x: Ratio, y: Ratio) {
   override def toString() = s"$x,$y"
+
+  def + (that: Point) = Point(this.x + that.x, this.y + that.y)
+  def - (that: Point) = Point(this.x - that.x, this.y - that.y)
+  def * (scale: Ratio) = Point(this.x * scale, this.y * scale)
+  def / (scale: Ratio) = Point(this.x / scale, this.y / scale)
 }
 object Point {
   implicit def apply[T <% Ratio](pair: (T, T)): Point = Point(pair._1, pair._2)
@@ -119,15 +141,16 @@ abstract case class Ratio private[Ratio](num: BigInt, den: BigInt) extends Order
 
   def sqrt: Option[Ratio] = {
     def sqrt(x: BigInt) = {
-      @tailrec def newton(a: BigInt): Option[BigInt] = {
-        if (a * a == x) Some(a)
+      @tailrec def newton(a: BigInt, depth: Int): Option[BigInt] = {
+        if (depth > 20) None
+        else if (a * a == x) Some(a)
         else {
           val b = (a + x / a) / 2
           if (a == b) None
-          else newton(b)
+          else newton(b, depth+1)
         }
       }
-      newton(x >> (x.bitLength / 2))
+      newton(x >> (x.bitLength / 2), 0)
     }
     if (num < 0) None else if (num == 0) Some(this) else for { n <- sqrt(num); d <- sqrt(den) } yield Ratio(n, d)
   }

@@ -5,7 +5,7 @@ KEY=`cat key`
 for ID in `ls data/problems`; do
   for solution in `ls data/problems/$ID/solutions`; do
     if [ ! -e data/problems/$ID/solved ]; then
-      if [ -e data/problems/$ID/solutions/$solution/solution.txt -a \
+      if [ -s data/problems/$ID/solutions/$solution/solution.txt -a \
            '(' ! -e data/problems/$ID/solutions/$solution/result.json -o \
               data/problems/$ID/solutions/$solution/solution.txt -nt data/problems/$ID/solutions/$solution/result.json ')' ]; then
         echo `date -Iseconds`": Submitting problem $ID solution $solution"

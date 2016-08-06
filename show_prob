@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cat data/problems/$1/spec.txt
+echo !!!!
+[ -e data/problems/$1/solved ] && echo SOLVED
+for s in `ls data/problems/$1/solutions`; do
+  echo -n "$s: "
+  if [ -s data/problems/$1/solutions/$s/result.json ]; then
+    jq -r .resemblance data/problems/$1/solutions/$s/result.json
+  else
+    echo ABORTED
+  fi
+done
