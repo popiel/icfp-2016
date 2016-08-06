@@ -10,7 +10,7 @@ fi
 SINCE_LAST=$((NOW - LAST))
 if [ $SINCE_LAST -gt 3700 ]; then
   echo `date -Iseconds`": Fetching snapshot list"
-  curl --compressed -L -H Expect: -H "X-API-Key: $KEY" 'http://2016sv.icfpcontest.org/api/snapshot/list' > data/snapshot_list.json
+  curl -s --compressed -L -H Expect: -H "X-API-Key: $KEY" 'http://2016sv.icfpcontest.org/api/snapshot/list' > data/snapshot_list.json
   sleep 1
 fi
 mkdir -p data/snapshots
@@ -20,7 +20,7 @@ for snapshot in `jq -c '.snapshots[]' data/snapshot_list.json`; do
   if [ ! -e data/snapshots/$TIME-$HASH.json ]; then
     rm -f data/snapshots/$TIME-*
     echo `date -Iseconds`": Fetching snapshot for $TIME: $HASH"
-    curl --compressed -L -H Expect: -H "X-API-Key: $KEY" "http://2016sv.icfpcontest.org/api/blob/$HASH" > data/snapshots/$TIME-$HASH.json
+    curl -s --compressed -L -H Expect: -H "X-API-Key: $KEY" "http://2016sv.icfpcontest.org/api/blob/$HASH" > data/snapshots/$TIME-$HASH.json
     sleep 1
   fi
 done

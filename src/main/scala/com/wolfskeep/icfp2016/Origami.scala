@@ -45,6 +45,8 @@ case class Segment(a: Point, b: Point) {
       Point(d * 2 - p.x, d * m * 2 - p.y + c * 2)
     }
   }
+
+  def colinear(p: Point) = Polygon(List(a, b, p)).twiceArea.num == 0
 }
 object Segment {
   implicit def apply(pair: (Point, Point)): Segment = Segment(pair._1, pair._2)

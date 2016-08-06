@@ -7,7 +7,7 @@ NOW=`date +'%s'`
 for TIME in `ls data/attacks`; do
   if [ $TIME -gt $NOW -a -e data/attacks/$TIME/solution.txt -a '(' ! -e data/attacks/$TIME/result.json -o data/attacks/$TIME/solution.txt -nt data/attacks/$TIME/result.json ')' ]; then
     echo `date -Iseconds`": Submitting attack for time $TIME"
-    curl --compressed -L -H Expect: -H "X-API-Key: $KEY" -F "solution_spec=@data/attacks/$TIME/solution.txt" -F "publish_time=$TIME" 'http://2016sv.icfpcontest.org/api/problem/submit' > data/attacks/$TIME/result.json
+    curl -s --compressed -L -H Expect: -H "X-API-Key: $KEY" -F "solution_spec=@data/attacks/$TIME/solution.txt" -F "publish_time=$TIME" 'http://2016sv.icfpcontest.org/api/problem/submit' > data/attacks/$TIME/result.json
       sleep 1
   fi
 done
