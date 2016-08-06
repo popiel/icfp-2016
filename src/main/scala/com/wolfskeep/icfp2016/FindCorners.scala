@@ -92,4 +92,54 @@ class Solver(problem: Problem) {
     }
   }
 */
+
+  def transform(fromSegment: Segment, fromPoint: Point, toSegment: Segment): Seq[Point] = {
+    val l1 = Segment(fromSegment.a, fromPoint).length2
+    val l2 = Segment(fromSegment.b, fromPoint).length2
+    val x1 = toSegment.a.x
+    val x2 = toSegment.b.x
+    val y1 = toSegment.a.y
+    val y2 = toSegment.b.y
+    if (y1 == y2) {
+      val q = (l2 - l1 - (x1 - x2) * (x1 - x2) + y1 * y1 - y2 * y2) / ((x1 - x2) * 2)
+      val r = (y1 - y2) / (x1 - x2)
+      val a = r * r + 1
+      val b = (y1 + q * r) * -2
+      val c = y1 * y1 + q * q - l1
+      val det = b * b - a * c * 4
+      println("det = " + det)
+      for {
+        pos <- det.sqrt.toSeq
+        n <- Seq(pos, -pos)
+        _ = println("n = " + n)
+        y0 = (n - b) / a / 2
+        det2 = (l1 - (y0 - y1) * (y0 - y1))
+        _ = println("det2 = " + det2)
+        p <- det2.sqrt.toSeq
+        o <- Seq(p, -p)
+        x0 = x1 + o
+        point = Point(x0, y0)
+        if Segment(toSegment.a, point).length2 == l1
+        if Segment(toSegment.b, point).length2 == l2
+      } yield point
+    } else {
+      val q = (l2 - l1 - (y1 - y2) * (y1 - y2) + x1 * x1 - x2 * x2) / ((y1 - y2) * 2)
+      val r = (x1 - x2) / (y1 - y2)
+      val a = r * r + 1
+      val b = (x1 + q * r) * -2
+      val c = x1 * x1 + q * q - l1
+      val det = b * b - a * c * 4
+      for {
+        pos <- det.sqrt.toSeq
+        n <- Seq(pos, -pos)
+        x0 = (n - b) / a / 2
+        p <- (l1 - (x0 - x1) * (x0 - x1)).sqrt.toSeq
+        o <- Seq(p, -p)
+        y0 = y1 + o
+        point = Point(x0, y0)
+        if Segment(toSegment.a, point).length2 == l1
+        if Segment(toSegment.b, point).length2 == l2
+      } yield point
+    }
+  }
 }

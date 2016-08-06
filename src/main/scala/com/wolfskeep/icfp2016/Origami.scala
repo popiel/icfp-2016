@@ -20,7 +20,7 @@ object Skeleton {
   }
 }
 case class Segment(a: Point, b: Point) {
-  require(a != b)
+  // require(a != b)
 
   def flip = Segment(b, a)
 
@@ -116,6 +116,21 @@ abstract case class Ratio private[Ratio](num: BigInt, den: BigInt) extends Order
   def unary_- = Ratio(-num, den)
 
   def copy(num: BigInt = num, den: BigInt = den): Ratio = Ratio.apply(num, den)
+
+  def sqrt: Option[Ratio] = {
+    def sqrt(x: BigInt) = {
+      @tailrec def newton(a: BigInt): Option[BigInt] = {
+        if (a * a == x) Some(a)
+        else {
+          val b = (a + x / a) / 2
+          if (a == b) None
+          else newton(b)
+        }
+      }
+      newton(x >> (x.bitLength / 2))
+    }
+    if (num < 0) None else if (num == 0) Some(this) else for { n <- sqrt(num); d <- sqrt(den) } yield Ratio(n, d)
+  }
 
   override def toString() = if (den == 1) num.toString else s"$num/$den"
 }

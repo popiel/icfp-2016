@@ -29,6 +29,17 @@ class RatioSpec extends FunSpec with Matchers {
       (6 /| 3).toString shouldBe "2"
       (-1 /| 1).toString shouldBe "-1"
     }
+    it("should provide sqrt when possible") {
+      (9 /| 4).sqrt shouldBe Some(3 /| 2)
+      Ratio(BigInt(121), BigInt("1524157875323883675019051998750190521")).sqrt shouldBe Some(Ratio(BigInt(11), BigInt("1234567890123456789")))
+    }
+    it("should not provide imaginary sqrts") {
+      (-9 /| 4).sqrt shouldBe None
+    }
+    it("should not provide irrational sqrts") {
+      (2 /| 1).sqrt shouldBe None
+      (1020 /| 1).sqrt shouldBe None
+    }
   }
 
   describe("Segment") {
@@ -137,6 +148,18 @@ class RatioSpec extends FunSpec with Matchers {
 0,1/2
 1/2,1/2
 0,1/2"""
+    }
+  }
+
+  describe("Solver") {
+    val simple =
+      Problem(
+        Shape(Seq(Polygon(Seq((0,0),(1,0),(1,1),(0,1))))),
+        Skeleton(Seq(Segment((0,0),(1,0)),Segment((0,0),(0,1)),Segment((1,0),(1,1)),Segment((0,1),(1,1))))
+      )
+    it("should be able to transform points from one segment to another") {
+      val s = new Solver(simple)
+      s.transform(Segment((0,0),(1,0)),Point(2,2),Segment((1,1),(2,1))) should contain theSameElementsAs List(Point(3,3),Point(3,-1))
     }
   }
 }
