@@ -6,15 +6,15 @@ mkdir -p log
 (
   flock -n 9 || exit 1
   (
-    ./get_snapshots
-    ./get_problems
+#    ./get_snapshots
+#    ./get_problems
 
     for p in `ls data/problems`; do
-      ./make_fc $p
+#      ./make_fc $p
       ./submit_solutions $p
 #      ./make_tiling $p
 #      ./submit_solutions $p
-      ./make_fc2 $p
+#      ./make_fc2 $p
       ./submit_solutions $p
     done
     ./submit_problems
