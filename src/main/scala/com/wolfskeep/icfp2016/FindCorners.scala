@@ -168,14 +168,20 @@ class Solver(problem: Problem) {
         case Some(nextSeg) =>
 println("expanding: " + solution)
           val image = solution.transform(nextSeg)
+println(" image " + image)
           val fs = facetsContaining(image)
           for {
             facet <- fs
             seg = (if (facet.segments.contains(image)) image else image.flip)
+_ = println(" seg " + image)
+_ = println(" nextSeg " + image)
             sf <- transform(seg, facet, nextSeg)
             if (!sf.points.exists(p => p.y < 0 || p.y > 1 || p.x < 0 || p.x > 1))
             if !solution.facets.exists(_ overlap sf)
+_ = println(" from " + facet)
+_ = println(" to   " + sf)
             pointmap = (sf.points zip facet.points).toMap
+_ = println(" new points: " + pointmap)
             sol <- expand(Solution2(solution.points ++ pointmap, sf +: solution.facets))
           } yield sol
       }

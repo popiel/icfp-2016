@@ -5,6 +5,7 @@ KEY=`cat key`
 for ID in ${1:-`ls data/problems`}; do
   for solution in `ls data/problems/$ID/solutions`; do
     if [ ! -e data/problems/$ID/solved ]; then
+      grep -q 'Please try again in 30 seconds' data/problems/$ID/solutions/$solution/result.json && rm data/problems/$ID/solutions/$solution/result.json
       if [ -s data/problems/$ID/solutions/$solution/solution.txt -a \
            '(' ! -e data/problems/$ID/solutions/$solution/result.json -o \
               data/problems/$ID/solutions/$solution/solution.txt -nt data/problems/$ID/solutions/$solution/result.json ')' ]; then

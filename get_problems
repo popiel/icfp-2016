@@ -4,11 +4,11 @@ KEY=`cat key`
 
 for problem in `jq -c '.problems[]' data/snapshots/current`; do
   ID=`echo $problem | jq -r '.problem_id'`
-  HASH=`echo $problem | jq -r '.problem_spec_hash'`
-  OWNER=`echo $problem | jq -r '.owner'`
-  if [ $OWNER != 59 ]; then
+  if [ ! -e data/problems/$ID/spec.txt ]; then
+    OWNER=`echo $problem | jq -r '.owner'`
+    if [ $OWNER != 59 ]; then
     mkdir -p data/problems/$ID
-    if [ ! -e data/problems/$ID/spec.txt ]; then
+      HASH=`echo $problem | jq -r '.problem_spec_hash'`
       echo `date -Iseconds`": Fetching spec for $ID: $HASH"
       curl -s --compressed -L -H Expect: -H "X-API-Key: $KEY" "http://2016sv.icfpcontest.org/api/blob/$HASH" > data/problems/$ID/spec.txt
       sleep 1
