@@ -192,6 +192,7 @@ class Solver(problem: Problem) {
 // _ = println(" non-overlap")
             pointmap = (sf.points zip facet.points).toMap
 // _ = println(" new points: " + pointmap)
+            if (!pointmap.keys.exists(k => solution.points.contains(k) && pointmap(k) != solution.points(k)))
             sol = Solution2(solution.points ++ pointmap, sf.normalize +: solution.facets)
           } yield sol
       }
