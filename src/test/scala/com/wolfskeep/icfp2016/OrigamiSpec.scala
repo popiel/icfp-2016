@@ -101,6 +101,12 @@ class RatioSpec extends FunSpec with Matchers with Inspectors {
       Polygon(List((0,0), (1,0), (0,1))) shouldBe 'right
       Polygon(List((0,0), (1,0), (1,1))) should not (be ('right))
     }
+
+    it("should check for overlap correctly") {
+      val p1 = Polygon(List((0,0), (1,0), (1,1), (0,1)))
+      val p2 = Polygon(List((2,0), (1,0), (1,1), (2,1)))
+      p1 overlap p2 shouldBe false
+    }
   }
 
   describe("Problem") {
@@ -175,9 +181,6 @@ class RatioSpec extends FunSpec with Matchers with Inspectors {
       Solution2(Map.empty, Nil).complete shouldBe false
     }
     it("should stay incomplete when only half done") { pending }
-    it("should know where to start") {
-      Solution2(Map.empty, Nil).nextSeg shouldBe Some(Segment((0,0),(1,0)))
-    }
   }
 
   describe("Solver") {
@@ -229,7 +232,7 @@ class RatioSpec extends FunSpec with Matchers with Inspectors {
       val s = new Solver(problem)
       val answers = s.makeTiling
       val answer = s.makeTiling.head
-      println(answer)
+//      println(answer)
       forAll(problem.shape.polygons.flatMap(_.points)) { point =>
         answer.points.values should contain (point)
       }

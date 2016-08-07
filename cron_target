@@ -12,6 +12,8 @@ mkdir -p log
     for p in `ls data/problems`; do
       ./make_fc $p
       ./submit_solutions $p
+#      ./make_tiling $p
+      ./submit_solutions $p
       ./make_fc2 $p
       ./submit_solutions $p
     done

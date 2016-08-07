@@ -132,9 +132,14 @@ case class Polygon(points: Seq[Point]) {
     }
   }
 
-  def segments = Segment(points.last, points.head) :: points.sliding(2).map(p => Segment(p(0),p(1))).toList
+  lazy val segments = Segment(points.last, points.head) :: points.sliding(2).map(p => Segment(p(0),p(1))).toList
 
   lazy val pointsExtra = points.last +: points
+
+  lazy val bb_min_x = points.map(_.x).min
+  lazy val bb_max_x = points.map(_.x).max
+  lazy val bb_min_y = points.map(_.y).min
+  lazy val bb_max_y = points.map(_.y).max
 
   def inside(p: Point) = {
     var wn = 0
@@ -144,15 +149,20 @@ case class Polygon(points: Seq[Point]) {
       if (pointsExtra(j).y <= p.y) {
         if (pointsExtra(j+1).y > p.y && Point.ccw(pointsExtra(j), pointsExtra(j+1), p) > 0) wn += 1
       } else {
-        if (pointsExtra(j+1).y <= p.y && Point.ccw(pointsExtra(j), pointsExtra(j+1), p) < 0) wn += 1
+        if (pointsExtra(j+1).y <= p.y && Point.ccw(pointsExtra(j), pointsExtra(j+1), p) < 0) wn -= 1
       }
     }
     wn != 0
   }
 
   def overlap(that: Polygon) = {
-    val (common, distinct) = points.partition(p => that.points.contains(p))
-    common.size > 2 || distinct.exists(that.inside)
+    this.bb_min_x < that.bb_max_x && this.bb_max_x > that.bb_min_x &&
+    this.bb_min_y < that.bb_max_y && this.bb_max_y > that.bb_min_y &&
+    {
+      val (common, d1) = points.partition(p => that.points.contains(p))
+      val d2 = that.points.filter(p => !this.points.contains(p))
+      common.size > 2 || d1.exists(that.inside) || d2.exists(inside)
+    }
   }
 }
 object Polygon {
@@ -282,9 +292,21 @@ case class Solution2(points: Map[Point, Point], facets: Seq[Polygon]) {
     i.find(q => !no.contains(q.unit.getOrElse(q).b))
   }
 
+/*
   def nextSeg = {
     val pl = points.keys.toSeq.sorted ++ List(Point(0,0),Point(1,0),Point(1,1),Point(0,1))
     pl.view.map(missing).collectFirst { case Some(x) => x }
+  }
+*/
+  def nextSeg = {
+    val segments = facets.flatMap(_.segments)
+    segments.find{ s => 
+      (s.a.x > 0 || s.b.x > 0) &&
+      (s.a.y > 0 || s.b.y > 0) &&
+      (s.a.x < 1 || s.b.x < 1) &&
+      (s.a.y < 1 || s.b.y < 1) &&
+      !segments.contains(s.flip)
+    }
   }
 
   def transform(seg: Segment) = Segment(points(seg.a),points(seg.b))

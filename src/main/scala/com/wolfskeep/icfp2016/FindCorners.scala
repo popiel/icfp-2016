@@ -8,6 +8,12 @@ object FindCorners {
     println(new Solver(problem).squaresFromCorners.head.render)
   }
 }
+object MakeTiling {
+  def main(args: Array[String]) {
+    val problem = Problem.parse(Source.stdin.getLines)
+    println(new Solver(problem).makeTiling.head.render)
+  }
+}
 
 case class PathStep(reflections: Seq[Segment], segment: Segment)
 case class Path(segment: Segment, steps: Seq[PathStep]) {
@@ -166,12 +172,12 @@ class Solver(problem: Problem) {
 
   def expand(solution: Solution2): Seq[Solution2] = {
     if (solution.complete) List(solution)
-    else if (solution.facets.size > 4) Nil
+//    else if (solution.facets.size > 8) Nil
     else {
+// println("expanding: " + solution)
       solution.nextSeg match {
         case None => List(solution)
         case Some(nextSeg) =>
-println("expanding: " + solution)
           val image = solution.transform(nextSeg)
 // println(" nextSeg " + nextSeg)
 // println(" image " + image)
@@ -181,11 +187,12 @@ println("expanding: " + solution)
 // _ = println(" from " + facet)
             sf <- transform(image, facet, nextSeg)
             if (!sf.points.exists(p => p.y < 0 || p.y > 1 || p.x < 0 || p.x > 1))
+// _ = println(" to   " + sf)
             if !solution.facets.exists(_ overlap sf)
-_ = println(" to   " + sf)
+// _ = println(" non-overlap")
             pointmap = (sf.points zip facet.points).toMap
 // _ = println(" new points: " + pointmap)
-            sol <- expand(Solution2(solution.points ++ pointmap, sf +: solution.facets))
+            sol = Solution2(solution.points ++ pointmap, sf.normalize +: solution.facets)
           } yield sol
       }
     }
@@ -201,13 +208,14 @@ _ = println(" to   " + sf)
       if (!sf.points.exists(p => p.y < 0 || p.y > 1 || p.x < 0 || p.x > 1))
 // _ = println(s"transformed $facet to $sf")
       pointmap = (sf.points zip facet.points).toMap
-      base = Solution2(pointmap, List(sf))
+      base = Solution2(pointmap, List(sf.normalize))
     } yield base).distinct
     var closed = Set.empty[Solution2]
     new Iterator[Solution2] {
       var nextResult: Option[Solution2] = None
       def hasNext = {
-        while (nextResult.isEmpty && open.nonEmpty) {
+        val expire = System.currentTimeMillis + 5000
+        while (nextResult.isEmpty && open.nonEmpty && System.currentTimeMillis < expire) {
           val s = open.dequeue
           if (s.complete) nextResult = Some(s)
           else if (!closed(s)) {

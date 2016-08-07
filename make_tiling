@@ -4,13 +4,13 @@ KEY=`cat key`
 
 ID=$1
 
-SOLNAME=fc2
+SOLNAME=tiling
 
 [ -e data/problems/$ID/solved -o -s data/problems/$ID/solutions/$SOLNAME/solution.txt ] && exit 0
 mkdir -p data/problems/$ID/solutions/$SOLNAME
 
 echo `date -Iseconds`": Generating solution $SOLNAME for problem $ID"
-java -classpath /home/popiel/icfp-2016/target/scala-2.10/classes:/home/popiel/.sbt/boot/scala-2.10.6/lib/scala-library.jar:/home/popiel/.ivy2/cache/org.scalactic/scalactic_2.10/bundles/scalactic_2.10-3.0.0.jar:/home/popiel/.sbt/boot/scala-2.10.6/lib/scala-reflect.jar com.wolfskeep.icfp2016.FindCorners < data/problems/$ID/spec.txt > data/problems/$ID/solutions/$SOLNAME/solution.txt
+java -classpath /home/popiel/icfp-2016/target/scala-2.10/classes:/home/popiel/.sbt/boot/scala-2.10.6/lib/scala-library.jar:/home/popiel/.ivy2/cache/org.scalactic/scalactic_2.10/bundles/scalactic_2.10-3.0.0.jar:/home/popiel/.sbt/boot/scala-2.10.6/lib/scala-reflect.jar com.wolfskeep.icfp2016.MakeTiling < data/problems/$ID/spec.txt > data/problems/$ID/solutions/$SOLNAME/solution.txt
 
 if [ ! -s data/problems/$ID/solutions/$SOLNAME/solution.txt ] || egrep '[a-z]' data/problems/$ID/solutions/$SOLNAME/solution.txt; then
   rm data/problems/$ID/solutions/$SOLNAME/*
