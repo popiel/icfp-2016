@@ -151,7 +151,8 @@ case class Polygon(points: Seq[Point]) {
   }
 
   def overlap(that: Polygon) = {
-    points.filter(p => !that.points.contains(p)).exists(that.inside)
+    val (common, distinct) = points.partition(p => that.points.contains(p))
+    common.size > 2 || distinct.exists(that.inside)
   }
 }
 object Polygon {

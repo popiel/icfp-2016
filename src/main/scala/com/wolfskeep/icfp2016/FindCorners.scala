@@ -83,7 +83,7 @@ class Solver(problem: Problem) {
     val x2 = toSegment.b.x
     val y1 = toSegment.a.y
     val y2 = toSegment.b.y
-    if (y1 == y2) {
+    (if (y1 == y2) {
       val q = (l2 - l1 - (x1 - x2) * (x1 - x2) + y1 * y1 - y2 * y2) / ((x1 - x2) * 2)
       val r = (y1 - y2) / (x1 - x2)
       val a = r * r + 1
@@ -120,7 +120,7 @@ class Solver(problem: Problem) {
         if Segment(toSegment.a, point).length2 == l1
         if Segment(toSegment.b, point).length2 == l2
       } yield point
-    }
+    }).distinct
   }
 
   def squaresFromCorners: Seq[Solution] = {
@@ -150,8 +150,12 @@ class Solver(problem: Problem) {
 
   def transform(fromSeg: Segment, fromPoly: Polygon, toSeg: Segment): Seq[Polygon] = {
     val key = fromPoly.points.find(p => !(fromSeg colinear p)).get
+// println("  fromSeg " + fromSeg)
+// println("  toSeg " + toSeg)
+// println("  key " + key)
     for {
       lock <- transform(fromSeg, key, toSeg)
+// _ = println("  lock " + lock)
     } yield Polygon(for {
       p <- fromPoly.points
     } yield (for {
@@ -162,26 +166,25 @@ class Solver(problem: Problem) {
 
   def expand(solution: Solution2): Seq[Solution2] = {
     if (solution.complete) List(solution)
+    else if (solution.facets.size > 4) Nil
     else {
       solution.nextSeg match {
         case None => List(solution)
         case Some(nextSeg) =>
 println("expanding: " + solution)
           val image = solution.transform(nextSeg)
-println(" image " + image)
+// println(" nextSeg " + nextSeg)
+// println(" image " + image)
           val fs = facetsContaining(image)
           for {
             facet <- fs
-            seg = (if (facet.segments.contains(image)) image else image.flip)
-_ = println(" seg " + image)
-_ = println(" nextSeg " + image)
-            sf <- transform(seg, facet, nextSeg)
+// _ = println(" from " + facet)
+            sf <- transform(image, facet, nextSeg)
             if (!sf.points.exists(p => p.y < 0 || p.y > 1 || p.x < 0 || p.x > 1))
             if !solution.facets.exists(_ overlap sf)
-_ = println(" from " + facet)
 _ = println(" to   " + sf)
             pointmap = (sf.points zip facet.points).toMap
-_ = println(" new points: " + pointmap)
+// _ = println(" new points: " + pointmap)
             sol <- expand(Solution2(solution.points ++ pointmap, sf +: solution.facets))
           } yield sol
       }
@@ -189,16 +192,40 @@ _ = println(" new points: " + pointmap)
   }
 
   def makeTiling: Seq[Solution2] = {
-    (for {
+    val open = scala.collection.mutable.Queue.empty[Solution2] ++= (for {
       corner <- usableCorners
       seg = corner._1
       nextSeg = Segment((0,0),(corner._1.length2.sqrt.get,Ratio(0)))
       facet <- facetsContaining(seg)
       sf <- transform(seg, facet, nextSeg)
       if (!sf.points.exists(p => p.y < 0 || p.y > 1 || p.x < 0 || p.x > 1))
-_ = println(s"transformed $facet to $sf")
+// _ = println(s"transformed $facet to $sf")
       pointmap = (sf.points zip facet.points).toMap
       base = Solution2(pointmap, List(sf))
-    } yield base).distinct.flatMap(expand)
+    } yield base).distinct
+    var closed = Set.empty[Solution2]
+    new Iterator[Solution2] {
+      var nextResult: Option[Solution2] = None
+      def hasNext = {
+        while (nextResult.isEmpty && open.nonEmpty) {
+          val s = open.dequeue
+          if (s.complete) nextResult = Some(s)
+          else if (!closed(s)) {
+            closed += s
+            open ++= expand(s)
+          }
+        }
+        nextResult.nonEmpty
+      }
+      def next() = {
+        if (hasNext) {
+          val r = nextResult.get
+          nextResult = None
+          r
+        } else {
+          throw new NoSuchElementException("End of iterator")
+        }
+      }
+    }.toStream
   }
 }

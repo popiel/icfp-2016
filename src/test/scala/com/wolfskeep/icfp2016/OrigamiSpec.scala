@@ -188,9 +188,24 @@ class RatioSpec extends FunSpec with Matchers with Inspectors {
       )
     val canted = Problem.parse(5)
     val noCorners = Problem.parse(1138)
+
     it("should be able to transform points from one segment to another") {
       val s = new Solver(simple)
       s.transform(Segment((0,0),(1,0)),Point(2,2),Segment((1,1),(2,1))) should contain theSameElementsAs List(Point(3,3),Point(3,-1))
+    }
+
+    it("should be able to transform points from one segment to another when the segments are the same") {
+      val s = new Solver(simple)
+      s.transform(Segment((0,0),(1,0)),Point(0,1),Segment((0,0),(1,0))) should contain theSameElementsAs List(Point(0,1),Point(0,-1))
+    }
+    it("should be able to transform points from one segment to another when the segments are the same, aligned with the terminus") {
+      val s = new Solver(simple)
+      s.transform(Segment((0,0),(1,0)),Point(1,1),Segment((0,0),(1,0))) should contain theSameElementsAs List(Point(1,1),Point(1,-1))
+    }
+    it("should be able to transform points from one segment to another when the segments are the same, the borked case") {
+      val s = new Solver(simple)
+      val (z,h,o) = (0/|1,1/|2,1/|1)
+      s.transform(Segment((z,h),(h,h)),Point(z,z),Segment((z,h),(h,h))) should contain theSameElementsAs List(Point(z,z),Point(z,o))
     }
 
     it("should be able to transform a polygon from one segment to another") {
@@ -213,11 +228,10 @@ class RatioSpec extends FunSpec with Matchers with Inspectors {
       val problem = Problem.parse(8)
       val s = new Solver(problem)
       val answers = s.makeTiling
-      println(answers.toList)
-      forAtLeast(1, answers.map(_.points.values)) { answer =>
-        forAll(problem.shape.polygons.flatMap(_.points)) { point =>
-          answer should contain (point)
-        }
+      val answer = s.makeTiling.head
+      println(answer)
+      forAll(problem.shape.polygons.flatMap(_.points)) { point =>
+        answer.points.values should contain (point)
       }
     }
   }
