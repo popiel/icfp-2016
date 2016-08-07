@@ -24,39 +24,10 @@ case class Path(segment: Segment, steps: Seq[PathStep]) {
 }
 
 class Solver(problem: Problem) {
-  lazy val rightAngles: Seq[(Segment, Segment)] = {
-    for {
-      set <- problem.skeleton.segments.tails
-      if set.length >= 2
-      head = set.head
-      a <- List(head, head.flip)
-      other <- set.tail
-      b <- List(other, other.flip)
-      if a right b
-    } yield (a, b)
-  }.toSeq
-
-  lazy val rightAngles2: Seq[(Segment, Segment)] = {
-    for {
-      set <- problem.skeleton.segments.tails
-      if set.length >= 2
-      head = set.head
-      a <- List(head, head.flip)
-      other <- set.tail
-      b <- List(other, other.flip)
-      if a right b
-    } yield (a, b)
-  }.toSeq
-
-  def connecting(from: Segment): Seq[Segment] = {
-    for {
-      seg <- problem.skeleton.segments ++ problem.skeleton.segments.map(_.flip)
-      if from.b == seg.a
-    } yield seg
-  }
+  import problem.skeleton._
 
   def continuing(from: Segment): Seq[(Segment,Segment)] = {
-    val others = connecting(from)
+    val others = connecting(from.b)
     for {
       across <- others
       if !(from colinear across.b)
@@ -69,7 +40,7 @@ class Solver(problem: Problem) {
     if (path.length2 == Ratio(1)) {
       println(path)
     } else if (path.length2 < 1) {
-      val others = connecting(path.lastSegment).toSet
+      val others = connecting(path.lastSegment.b).toSet
       def attempt(subset: Seq[Segment]) {
         val transformed = subset.foldLeft(path.transformed){ (p: Point, s: Segment) => s reflect p }
         val remain = others -- subset
@@ -167,5 +138,61 @@ class Solver(problem: Problem) {
       v2 = s2.b
       v3 <- transform(Segment((0,0),(1,0)),(1,1),s1) intersect transform(Segment((0,0),(0,1)),(1,1),s2)
     } yield Solution(List((0,0),(1,0),(1,1),(0,1)),List(Polygon(List((0,0),(1,0),(1,1),(0,1)))),List(v0,v1,v3,v2))
+  }
+
+  def usableCorners: Seq[(Segment, Segment)] = {
+    for {
+      angle <- rightAngles
+      l1 <- angle._1.length2.sqrt.toSeq
+      l2 <- angle._2.length2.sqrt.toSeq
+    } yield angle
+  }
+
+  def transform(fromSeg: Segment, fromPoly: Polygon, toSeg: Segment): Seq[Polygon] = {
+    val key = fromPoly.points.find(p => !(fromSeg colinear p)).get
+    for {
+      lock <- transform(fromSeg, key, toSeg)
+    } yield Polygon(for {
+      p <- fromPoly.points
+    } yield (for {
+      t <- transform(fromSeg, p, toSeg)
+      if (lock dist2 t) == (key dist2 p)
+    } yield t).head)
+  }
+
+  def expand(solution: Solution2): Seq[Solution2] = {
+    if (solution.complete) List(solution)
+    else {
+      solution.nextSeg match {
+        case None => List(solution)
+        case Some(nextSeg) =>
+println("expanding: " + solution)
+          val image = solution.transform(nextSeg)
+          val fs = facetsContaining(image)
+          for {
+            facet <- fs
+            seg = (if (facet.segments.contains(image)) image else image.flip)
+            sf <- transform(seg, facet, nextSeg)
+            if (!sf.points.exists(p => p.y < 0 || p.y > 1 || p.x < 0 || p.x > 1))
+            if !solution.facets.exists(_ overlap sf)
+            pointmap = (sf.points zip facet.points).toMap
+            sol <- expand(Solution2(solution.points ++ pointmap, sf +: solution.facets))
+          } yield sol
+      }
+    }
+  }
+
+  def makeTiling: Seq[Solution2] = {
+    (for {
+      corner <- usableCorners
+      seg = corner._1
+      nextSeg = Segment((0,0),(corner._1.length2.sqrt.get,Ratio(0)))
+      facet <- facetsContaining(seg)
+      sf <- transform(seg, facet, nextSeg)
+      if (!sf.points.exists(p => p.y < 0 || p.y > 1 || p.x < 0 || p.x > 1))
+_ = println(s"transformed $facet to $sf")
+      pointmap = (sf.points zip facet.points).toMap
+      base = Solution2(pointmap, List(sf))
+    } yield base).distinct.flatMap(expand)
   }
 }

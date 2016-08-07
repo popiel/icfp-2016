@@ -2,7 +2,7 @@
 
 KEY=`cat key`
 
-for ID in `ls data/problems`; do
+for ID in ${1:-`ls data/problems`}; do
   for solution in `ls data/problems/$ID/solutions`; do
     if [ ! -e data/problems/$ID/solved ]; then
       if [ -s data/problems/$ID/solutions/$solution/solution.txt -a \

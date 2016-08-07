@@ -4,7 +4,7 @@ import org.scalatest._
 import org.scalatest.matchers._
 import com.wolfskeep.icfp2016.RatioConstruction._
 
-class RatioSpec extends FunSpec with Matchers {
+class RatioSpec extends FunSpec with Matchers with Inspectors {
   describe("Ratio") {
     it("should reduce fractions appropriately") {
       Ratio(2, 4) shouldBe Ratio(1, 2)
@@ -161,6 +161,25 @@ class RatioSpec extends FunSpec with Matchers {
     }
   }
 
+  describe("Skeleton") {
+    describe("facets") {
+      it("should make a single facet for simple squares") {
+        Problem.parse(1).skeleton.facets should have length 1
+        Problem.parse(5).skeleton.facets should have length 1
+      }
+    }
+  }
+
+  describe("Solution2") {
+    it("should start incomplete") {
+      Solution2(Map.empty, Nil).complete shouldBe false
+    }
+    it("should stay incomplete when only half done") { pending }
+    it("should know where to start") {
+      Solution2(Map.empty, Nil).nextSeg shouldBe Some(Segment((0,0),(1,0)))
+    }
+  }
+
   describe("Solver") {
     val simple =
       Problem(
@@ -168,15 +187,38 @@ class RatioSpec extends FunSpec with Matchers {
         Skeleton(Seq(Segment((0,0),(1,0)),Segment((0,0),(0,1)),Segment((1,0),(1,1)),Segment((0,1),(1,1))))
       )
     val canted = Problem.parse(5)
+    val noCorners = Problem.parse(1138)
     it("should be able to transform points from one segment to another") {
       val s = new Solver(simple)
       s.transform(Segment((0,0),(1,0)),Point(2,2),Segment((1,1),(2,1))) should contain theSameElementsAs List(Point(3,3),Point(3,-1))
     }
+
+    it("should be able to transform a polygon from one segment to another") {
+      val s = new Solver(simple)
+      val p1 = Polygon(List((0,0),(1,0),(1,1),(0,1)))
+      val from = Segment((0,0),(1,0))
+      val to   = Segment((0,1),(1,1))
+      val m1 = Polygon(List((0,1),(1,1),(1,2),(0,2)))
+      val m2 = Polygon(List((0,1),(1,1),(1,0),(0,0)))
+      s.transform(from, p1, to) should contain theSameElementsAs List(m1, m2)
+    }
+
     it("should be able to solve a simple rotation") {
       val s = new Solver(canted)
       val answers = s.squaresFromCorners
-      println(answers.toList)
       atLeast(1, answers.map(_.destinations)) should contain theSameElementsAs canted.shape.polygons(0).points
+    }
+
+    it("should be able to solve a simple size reduction") {
+      val problem = Problem.parse(8)
+      val s = new Solver(problem)
+      val answers = s.makeTiling
+      println(answers.toList)
+      forAtLeast(1, answers.map(_.points.values)) { answer =>
+        forAll(problem.shape.polygons.flatMap(_.points)) { point =>
+          answer should contain (point)
+        }
+      }
     }
   }
 }

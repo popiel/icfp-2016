@@ -6,7 +6,7 @@ ID=$1
 
 SOLNAME=fc2
 
-[ -e data/problems/$ID/solved -o -s data/problems/$ID/solutions/$SOLNAME/solution.txt ] && exit 0
+[ -e data/problems/$ID/solved -o -d data/problems/$ID/solutions/$SOLNAME ] && exit 0
 mkdir -p data/problems/$ID/solutions/$SOLNAME
 
 echo `date -Iseconds`": Generating solution $SOLNAME for problem $ID"
