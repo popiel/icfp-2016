@@ -13,7 +13,7 @@ mkdir -p log
       ./make_fc $p
       ./submit_solutions $p
 #      ./make_tiling $p
-      ./submit_solutions $p
+#      ./submit_solutions $p
       ./make_fc2 $p
       ./submit_solutions $p
     done

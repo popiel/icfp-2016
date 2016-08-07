@@ -212,6 +212,7 @@ class Solver(problem: Problem) {
       base = Solution2(pointmap, List(sf.normalize))
     } yield base).distinct
     var closed = Set.empty[Solution2]
+    var refreshed = false
     new Iterator[Solution2] {
       var nextResult: Option[Solution2] = None
       def hasNext = {
@@ -222,6 +223,20 @@ class Solver(problem: Problem) {
           else if (!closed(s)) {
             closed += s
             open ++= expand(s)
+          }
+          if (open.isEmpty && !refreshed) {
+            refreshed = true
+            open ++= (for {
+              seg <- all
+              root <- seg.length2.sqrt.toSeq
+              nextSeg = Segment((0,0),(root,Ratio(0)))
+              facet <- facetsContaining(seg)
+              sf <- transform(seg, facet, nextSeg)
+              if (!sf.points.exists(p => p.y < 0 || p.y > 1 || p.x < 0 || p.x > 1))
+        // _ = println(s"transformed $facet to $sf")
+              pointmap = (sf.points zip facet.points).toMap
+              base = Solution2(pointmap, List(sf.normalize))
+            } yield base).distinct
           }
         }
         nextResult.nonEmpty

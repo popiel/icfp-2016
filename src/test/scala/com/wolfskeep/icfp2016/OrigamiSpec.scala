@@ -237,5 +237,15 @@ class RatioSpec extends FunSpec with Matchers with Inspectors {
         answer.points.values should contain (point)
       }
     }
+    it("should be able to solve a case with no corners") {
+      val problem = Problem.parse(1138)
+      val s = new Solver(problem)
+      val answers = s.makeTiling
+      val answer = s.makeTiling.head
+//      println(answer)
+      forAll(problem.shape.polygons.flatMap(_.points)) { point =>
+        answer.points.values should contain (point)
+      }
+    }
   }
 }

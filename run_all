@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cd ~/icfp-2016
+
+mkdir -p log
+(
+  flock -n 9 || exit 1
+  (
+    for p in `ls data/problems`; do
+      ./make_tiling $p
+    done
+  ) 2>&1 | tee -a log/run_all.log
+) 9>>log/run_all.log
